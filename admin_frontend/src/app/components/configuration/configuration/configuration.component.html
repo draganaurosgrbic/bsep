@@ -1,0 +1,118 @@
+<div class="p-card p-mt-4 p-mx-4 p-shadow-3">
+  <p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+      <span class="p-d-flex p-ai-center">
+          <form (ngSubmit)="connected ? save() : connect()">
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">https://</span>
+              <input type="text" pInputText placeholder="Hospital API" [formControl]="hospitalApiControl">
+              <button type="submit"
+                      class="p-button-success"
+                      [label]="connected ? 'Disconnect & Save' : 'Connect'"
+                      pButton
+                      *ngIf="!loading"
+              ></button>
+              <button type="button"
+                      class="p-button-success"
+                      icon="pi pi-spin pi-spinner"
+                      pButton
+                      *ngIf="loading"
+              ></button>
+              <button type="button"
+                      class="p-button-danger"
+                      label="Disconnect & Cancel"
+                      pButton
+                      *ngIf="!loading && connected"
+                      (click)="cancel()"
+              ></button>
+            </div>
+          </form>
+      </span>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <span class="p-d-flex p-ai-center">
+        <p-badge [severity]="connected ? 'success' : 'danger'"
+                 [value]="connected ? 'Connected' : 'Disconnected'"
+        ></p-badge>
+      </span>
+    </ng-template>
+  </p-toolbar>
+
+  <div class="p-text-center p-pt-3 p-pb-5" *ngIf="!connected; else tableView">
+    <h2 class="p-text-normal">
+      Please connect in order to edit configuration for a certain hospital.
+    </h2>
+  </div>
+
+  <ng-template #tableView>
+    <p-table [value]="configuration.configurations"
+             [rowHover]="true"
+             dataKey="id"
+             editMode="row">
+      <ng-template pTemplate="caption">
+        <div class="p-d-flex p-ai-center">
+          <button pButton label="New" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="addConfiguration()"></button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Path</th>
+          <th>Interval</th>
+          <th>Regular expression</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-logConfiguration let-editing="editing" let-ri="rowIndex">
+        <tr [pEditableRow]="logConfiguration" #tr>
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="logConfiguration.path">
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{logConfiguration.path}}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-inputNumber [(ngModel)]="logConfiguration.interval"></p-inputNumber>
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{logConfiguration.interval}}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="logConfiguration.regExp">
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{logConfiguration.regExp}}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td style="text-align:center">
+            <button *ngIf="!editing" pButton type="button" pInitEditableRow icon="pi pi-pencil" (click)="onRowEditInit(logConfiguration)" class="p-button-rounded p-button-text"></button>
+            <button *ngIf="editing" pButton type="button" pSaveEditableRow icon="pi pi-check" (click)="onRowEditSave(logConfiguration)" class="p-button-rounded p-button-text p-button-success p-mr-2"></button>
+            <button *ngIf="editing" pButton type="button" pCancelEditableRow icon="pi pi-times" (click)="onRowEditCancel(logConfiguration, ri)" class="p-button-rounded p-button-text p-button-danger"></button>
+            <button *ngIf="!editing" pButton type="button" icon="pi pi-trash" (click)="deleteConfiguration(ri)" class="p-button-rounded p-button-text p-button-danger"></button>
+          </td>
+
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="3">
+            No configuration found
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</div>

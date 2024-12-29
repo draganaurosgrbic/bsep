@@ -1,0 +1,165 @@
+<div class="p-card p-mt-4 p-mx-4 p-shadow-3">
+  <p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+      <span class="p-d-flex p-ai-center">
+        <button *ngIf="activeIndex !== 2" pButton label="New" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="openForm()"></button>
+      </span>
+    </ng-template>
+    <ng-template pTemplate="right">
+      Current CA:
+      <button *ngIf="caAlias" pButton [label]="caAlias" class="p-button p-button-outlined p-ml-3" (click)="openCertificate()"></button>
+      <button *ngIf="caAlias !== 'root'"
+              pButton
+              label="Reset"
+              class="p-button p-button-warning p-ml-3"
+              (click)="switchCA()"
+      ></button>
+    </ng-template>
+
+  </p-toolbar>
+
+  <p-tabMenu [model]="tabItems" [activeItem]="tabItems[activeIndex]"></p-tabMenu>
+  <div>
+    <div *ngIf="activeIndex === 0">
+      <app-table-view
+        (openCertificate)="openCertificate($event)"
+        (revokeCertificate)="openRevoke($event)"
+        (downloadCrt)="downloadCrt($event)"
+        (downloadKey)="downloadKey($event)"
+        (downloadJks)="downloadJks($event)"
+        (switchCA)="switchCA($event)"
+        #table>
+      </app-table-view>
+    </div>
+    <div *ngIf="activeIndex === 1">
+      <app-tree-view
+        (openCertificate)="openCertificate($event)"
+        (revokeCertificate)="openRevoke($event)"
+        (downloadCrt)="downloadCrt($event)"
+        (downloadKey)="downloadKey($event)"
+        (downloadJks)="downloadJks($event)"
+        (switchCA)="switchCA($event)"
+        #tree
+      ></app-tree-view>
+    </div>
+    <div *ngIf="activeIndex === 2">
+      <app-request-view
+        (openRequest)="openRequest($event)"
+        #requestsTable>
+      </app-request-view>
+    </div>
+  </div>
+
+</div>
+
+<p-dialog [(visible)]="detailsDialog" [style]="{width: '600px'}" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="header">
+    <span class="p-text-left p-align-center p-d-flex">
+      <img src="../../../../assets/certificate-icon.png" alt="certificate" height="30" width="30">
+      <span class="p-ml-3">Certificate: <span class="p-text-bold">{{certificate.alias}}</span></span>
+    </span>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="p-m-2 p-p-2 details-content">
+      <div class="p-grid">
+        <div class="p-col-12 p-lg-6">
+          <span class="p-text-light">Common name: </span> <span class="p-text-bold">{{certificate.commonName}}</span>
+        </div>
+        <div class="p-col-12 p-lg-6">
+          <span class="p-text-light">Alias: </span> <span class="p-text-bold">{{certificate.alias}}</span>
+        </div>
+        <div class="p-col-12 p-lg-6">
+          <span class="p-text-light">Organization: </span> <span class="p-text-bold">{{certificate.organization}}</span>
+        </div>
+        <div class="p-col-12 p-lg-6">
+          <span class="p-text-light">Organization unit: </span> <span
+          class="p-text-bold">{{certificate.organizationUnit}}</span>
+        </div>
+        <div class="p-col-12 p-lg-6">
+          <span class="p-text-light">Country code:</span> <span class="p-text-bold">{{certificate.country}}</span>
+        </div>
+        <div class="p-col-12 p-lg-6">
+          <span class="p-text-light">Email: </span> <span class="p-text-bold">{{certificate.email}}</span>
+        </div>
+      </div>
+      <hr>
+
+      <div class="p-grid p-justify-around p-mt-3">
+        <div class="p-col-12 p-text-left" *ngIf="certificate.extensions.basicConstraints !== null">
+          <div class="p-grid">
+            <div class="p-col-4 p-md-3">
+              <span class="p-text-light">Basic constraints: </span>
+            </div>
+            <div class="p-col-8 p-md-9">
+              <p-badge [value]="certificate.extensions.basicConstraints ? 'TRUE' : 'FALSE'"
+                       [severity]="certificate.extensions.basicConstraints ? 'success' : 'danger'"></p-badge>
+            </div>
+          </div>
+        </div>
+        <div class="p-col-12 p-text-left p-as-center"
+             *ngIf="certificate.extensions.keyUsage && certificate.extensions.keyUsage > 0">
+          <div class="p-grid">
+            <div class="p-col-4 p-md-3 p-text-light">Key usages:</div>
+            <div class="p-col-8 p-md-9">
+              <p-badge class="p-mr-1" *ngFor="let keyUsage of keyUsages" [value]="keyUsage.option"></p-badge>
+            </div>
+          </div>
+        </div>
+        <div class="p-col-12 p-text-left p-as-center"
+             *ngIf="certificate.extensions.keyPurposeIds && certificate.extensions.keyPurposeIds.length > 0">
+          <div class="p-grid">
+            <div class="p-col-4 p-md-3 p-text-light">Extended key usages:</div>
+            <div class="p-col-8 p-md-9">
+              <p-badge class="p-mr-1"
+                       *ngFor="let extendedKeyUsage of extendedKeyUsages"
+                       [value]="extendedKeyUsage.option"
+                       severity="warning"
+              ></p-badge>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <hr>
+
+      <div class="p-grid p-justify-around p-mt-3">
+        <div class="p-col p-text-left p-as-center">
+          <span class="p-text-light">Issued by: </span> <span class="p-text-bold">{{certificate.issuerAlias}}</span>
+        </div>
+        <div class="p-col p-d-flex p-ai-center">
+          <p-chip *ngIf="caAlias === certificate.alias; else noBadge"
+                  [label]="getTemplate(certificate.template).label" [icon]="getTemplate(certificate.template).icon"
+                  pBadge></p-chip>
+          <ng-template #noBadge>
+            <p-chip [label]="getTemplate(certificate.template).label"
+                    [icon]="getTemplate(certificate.template).icon"></p-chip>
+          </ng-template>
+          <p-badge class="p-ml-4" [value]="certificate.revoked ? 'REVOKED' : 'VALID'"
+                   [severity]="certificate.revoked ? 'danger' : 'success'"></p-badge>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton  label="Close" icon="pi pi-times" class="p-button p-button-text" (click)="detailsDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog (onHide)="submitted=false" [(visible)]="revokeDialog" [style]="{width: '600px'}" header="Revoke certificate" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div class="p-field reason">
+      <label for="reason">Reason</label>
+      <textarea class="reason" pInputText id="reason" [(ngModel)]="revoke.reason" required autofocus></textarea>
+      <small class="p-error" *ngIf="submitted && !revoke.reason">Reason for revocation is required.</small>
+    </div>
+    <hr>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="revokeDialog=false"></button>
+    <button pButton label="Save" icon="pi pi-check" class="p-button-text" (click)="revokeCertificate(); submitted=true"></button>
+  </ng-template>
+</p-dialog>

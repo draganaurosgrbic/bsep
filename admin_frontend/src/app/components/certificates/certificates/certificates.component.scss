@@ -1,0 +1,18 @@
+.details-content {
+  border: 1px solid black;
+}
+
+:host::ng-deep .p-panel-content {
+  padding: 0;
+}
+
+:host::ng-deep div.p-progress-spinner {
+  display: flex;
+}
+
+.reason {
+  max-height: 80%;
+  min-height: 65%;
+  max-width: 100%;
+  min-width: 100%;
+}

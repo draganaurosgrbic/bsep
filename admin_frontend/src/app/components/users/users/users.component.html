@@ -1,0 +1,146 @@
+<div class="p-card p-mt-4 p-mx-4 p-shadow-3">
+  <p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+      <span class="p-d-flex p-ai-center">
+        <button pButton label="New" icon="pi pi-plus" class="p-button-success" (click)="saveDialog()"></button>
+      </span>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table [value]="users"
+           [lazy]="true"
+           (onLazyLoad)="getUsers($event)"
+           [rows]="10"
+           [paginator]="true"
+           [rowHover]="true"
+           [totalRecords]="totalRecords"
+           [loading]="loading"
+           dataKey="id"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+           [showCurrentPageReport]="true"
+           #table>
+    <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Manage Users</h5>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th>First name</th>
+        <th>Last name</th>
+        <th class="responsive-column">Email</th>
+        <th>Status</th>
+        <th>Roles</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-user>
+      <tr>
+        <td>{{user.firstName}}</td>
+        <td>{{user.lastName}}</td>
+        <td class="responsive-column">{{user.email}}</td>
+        <td><p-badge [value]="user.enabled ? 'ENABLED' : 'DISABLED'" [severity]="user.enabled ? 'success' : 'danger'"></p-badge></td>
+        <td>
+          <p-overlayPanel appendTo="body" #op>
+            <ng-template pTemplate>
+              <p-chip *ngFor="let role of user.roles" class="p-mx-1" [label]="role.name"></p-chip>
+            </ng-template>
+          </p-overlayPanel>
+          <button pButton
+                  class="p-button-sm p-button-rounded p-button-outlined p-button-warning"
+                  icon="pi pi-star-o"
+                  label="Roles"
+                  (click)="op.toggle($event)"
+          ></button>
+        </td>
+        <td>
+          <button type="button"
+                  class="p-button-sm p-button-rounded p-button-outlined"
+                  pButton
+                  icon="pi pi-bars"
+                  label="Options"
+                  (click)="menu.toggle($event)"
+          ></button>
+          <p-menu #menu [popup]="true" [model]="getMenuItems(user)" appendTo="body"></p-menu>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        In total there are {{totalRecords}} users.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="formDialog"
+          [style]="{width: '600px'}"
+          header="New user"
+          [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+      <div class="p-grid">
+        <div class="p-sm-12 p-md-6">
+          <div class="p-field">
+            <label for="first-name">First name</label>
+            <input type="text"
+                   formControlName="firstName"
+                   pInputText
+                   id="first-name"
+                   required
+                   autofocus>
+            <small class="p-error" *ngIf="userForm.get('firstName').dirty && userForm.get('firstName').invalid">First name invalid.</small>
+          </div>
+        </div>
+        <div class="p-sm-12 p-md-6">
+          <div class="p-field">
+            <label for="last-name">Last name</label>
+            <input type="text"
+                   formControlName="lastName"
+                   pInputText
+                   id="last-name"
+                   required
+                   autofocus/>
+            <small class="p-error" *ngIf="userForm.get('lastName').dirty && userForm.get('lastName').invalid">Last name invalid.</small>
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div class="p-field">
+            <label for="roles">Roles</label>
+            <p-multiSelect inputId="roles"
+                           formControlName="roles"
+                           [options]="roles"
+                           optionLabel="name"
+                           display="chip"
+            ></p-multiSelect>
+            <small class="p-error"
+                   *ngIf="userForm.get('roles').dirty && userForm.get('roles').invalid">
+              Roles are required.
+            </small>
+
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div class="p-field">
+            <label for="email">Email</label>
+            <input type="email"
+                   formControlName="email"
+                   pInputText
+                   id="email"
+                   required
+                   autofocus>
+            <small class="p-error" *ngIf="userForm.get('email').dirty && userForm.get('email').invalid">Email invalid.</small>
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div [style]="{height: '30px'}"></div>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="formDialog=false"></button>
+    <button pButton label="Save" icon="pi pi-check" class="p-button-text" (click)="saveUser()"></button>
+  </ng-template>
+</p-dialog>
