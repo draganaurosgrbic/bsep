@@ -1,0 +1,39 @@
+<div class="main">
+    <app-list title="NO ALARMS" [pending]="pending" [empty]="!page.content.length" 
+    [page]="page" [refresh]="true" (changedPage)="fetchAlarmTriggerings($event)">
+        <app-details 
+        *ngFor="let alarmTriggering of page.content"
+        [date]="alarmTriggering.date" [warn]="true"
+        [details]="[{key: 'Patient', value: alarmTriggering.patient}]"
+        [mainDetails]="[
+            {key: 'Message', value: alarmTriggering.message},
+            {key: 'Risk level', value: alarmTriggering.risk}]"
+        ></app-details>
+    </app-list>
+</div>
+<div class="mat-elevation-z24 filter">
+    <form [formGroup]="filterForm" [class.disabled]="pending">
+        <app-spacer>
+            <mat-checkbox
+            formControlName="low"
+            (change)="fetchAlarmTriggerings(0)">
+                Low
+            </mat-checkbox>
+            <mat-checkbox
+            formControlName="moderate"
+            (change)="fetchAlarmTriggerings(0)">
+                Moderate
+            </mat-checkbox>
+            <mat-checkbox
+            formControlName="high"
+            (change)="fetchAlarmTriggerings(0)">
+                High
+            </mat-checkbox>
+            <mat-checkbox
+            formControlName="extreme"
+            (change)="fetchAlarmTriggerings(0)">
+                Extreme
+            </mat-checkbox>
+        </app-spacer>
+    </form>
+</div>

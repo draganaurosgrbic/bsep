@@ -1,0 +1,36 @@
+<app-spacer>
+    <span class="left" [class.small]="small" cdkFocusInitial>
+        <button 
+        *ngIf="!pending && !page.first" 
+        (click)="changedPage.emit(page.pageable.pageNumber - 1)"
+        mat-icon-button
+        matTooltip="Previous page">
+            <mat-icon>navigate_before</mat-icon>
+        </button>
+    </span>
+    <span *ngIf="refresh && !pending && !page.pageable.pageNumber">
+        <button 
+        (click)="changedPage.emit(0)"
+        mat-icon-button 
+        matTooltip="Refresh">
+            <mat-icon class="more">autorenew</mat-icon>
+        </button>
+    </span>
+    <span *ngIf="alarm && !pending">
+        <button 
+        (click)="alarmWanted.emit()"
+        mat-icon-button
+        matTooltip="Add alarm">
+            <mat-icon class="more">alarm_on</mat-icon>
+        </button>
+    </span>
+    <span class="right" [class.small]="small">
+        <button 
+        *ngIf="!pending && !page.last" 
+        (click)="changedPage.emit(page.pageable.pageNumber + 1)"
+        mat-icon-button
+        matTooltip="Next page">
+            <mat-icon>navigate_next</mat-icon>
+        </button>
+    </span>
+</app-spacer>    

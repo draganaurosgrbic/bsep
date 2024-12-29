@@ -1,0 +1,12 @@
+form{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 800px;
+    padding: 20px;
+}
+
+form > div{
+    width: 46%;
+}

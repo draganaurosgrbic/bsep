@@ -1,0 +1,95 @@
+<mat-toolbar class="mat-elevation-z24">
+    <span>
+        <button
+        *ngIf="isDoctor && (onRoute(routes.reportRoute) || onRoute(routes.messagesRoute)
+        || (onRoute(routes.alarmsRoute) && !isAdmin))"
+        [routerLink]="routes.patientsRoute"
+        mat-button
+        matTooltip="Patients">
+            Patients
+        </button>
+        
+        <button
+        *ngIf="onRoute(routes.patientsRoute)"
+        (click)="openPatientForm()"
+        mat-button
+        matTooltip="New Patient">
+            New Patient
+        </button>
+        <button
+        *ngIf="onRoute(routes.patientsRoute)"
+        [routerLink]="routes.messagesRoute"
+        mat-button
+        matTooltip="Messages">
+            Messages
+        </button>
+        <button
+        *ngIf="onRoute(routes.reportRoute)"
+        [routerLink]="routes.logsRoute"
+        mat-button
+        matTooltip="Logs">
+            Logs
+        </button>
+        <button
+        *ngIf="onRoute(routes.reportRoute) || (onRoute(routes.patientsRoute) && !isAdmin)"
+        [routerLink]="routes.alarmsRoute"
+        mat-button
+        matTooltip="Alarms">
+            Alarms
+        </button>
+        <button
+        *ngIf="onRoute(routes.alarmsRoute) && isAdmin"
+        (click)="openAlarmForm()"
+        mat-button
+        matTooltip="New alarm">
+            New alarm
+        </button>
+        <button
+        *ngIf="onRoute(routes.alarmsRoute) && isAdmin"
+        (click)="openAlarmList()"
+        mat-button
+        matTooltip="List">
+            List
+        </button>
+        <button
+        *ngIf="onRoute(routes.reportRoute)"
+        (click)="openRequestForm()"
+        mat-button
+        matTooltip="Certificate request">
+            Certificate request
+        </button>
+        <button
+        *ngIf="onRoute(routes.reportRoute)"
+        (click)="openRevokeForm()"
+        mat-button
+        matTooltip="Certificate revoke">
+            Certificate revoke
+        </button>
+
+        <button
+        *ngIf="isAdmin && (onRoute(routes.patientsRoute) || onRoute(routes.logsRoute)
+        || (onRoute(routes.alarmsRoute)))"
+        [routerLink]="routes.reportRoute"
+        mat-button
+        matTooltip="Dashboard">
+            Dashboard
+        </button>
+    </span>
+    <span class="main">
+        <form *ngIf="onRoute(routes.patientsRoute)" (ngSubmit)="announceSearchData()">
+            <input
+            [formControl]="search"
+            [classList]="'form-control'"
+            placeholder="Search...">   
+        </form>
+        <button *ngIf="!onRoute(routes.loginRoute)" [matMenuTriggerFor]="more" mat-icon-button matTooltip="More">
+            <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #more="matMenu">
+            <button (click)="signOut()" mat-menu-item>
+                <mat-icon>logout</mat-icon>
+                <span>Sign out</span>
+            </button>
+        </mat-menu>
+    </span>
+</mat-toolbar>
